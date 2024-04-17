@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  demo-project-pg:
+    image: postgres:16.2-alpine3.19
+    ports:
+      - "5432:5432"
+    volumes:
+      - ~/dev/db/metrics_board:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: metrics_board
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres

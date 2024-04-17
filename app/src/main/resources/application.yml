@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: metrics-board
+  datasource:
+    url: jdbc:postgresql://localhost:5432/metrics_board
+    username: postgres
+    password: postgres
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/metrics_board
+    user: postgres
+    password: postgres
+    baseline-on-migrate: true

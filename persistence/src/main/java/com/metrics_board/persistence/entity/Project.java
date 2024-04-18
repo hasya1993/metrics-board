@@ -3,6 +3,7 @@ package com.metrics_board.persistence.entity;
 import lombok.*;
 import jakarta.persistence.*;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.metrics_board.persistence.enums.ProjectStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -29,8 +30,9 @@ public class Project {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "status", nullable = false, length = 10, columnDefinition = "VARCHAR(10) CHECK (status IN ('active', 'suspended', 'archived'))")
-    private String status;
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProjectStatus status;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;

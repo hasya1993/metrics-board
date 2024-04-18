@@ -1,1 +1,1 @@
-INSERT INTO roll.project (owner_id, name, description, status) VALUES (gen_random_uuid(), 'Project', 'description', 'active');
+INSERT INTO roll.project (id, owner_id, name, description, status) VALUES (setval('roll.project_id_seq', 1000), gen_random_uuid(), 'Project', 'description', 'active');

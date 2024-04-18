@@ -7,7 +7,7 @@ CREATE TABLE roll.project (
     owner_id UUID NOT NULL,
     name VARCHAR(1024) NOT NULL,
     description TEXT,
-    status VARCHAR(10) NOT NULL CHECK (status IN ('active', 'suspended', 'archived')),
+    status VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP
 );

@@ -1,6 +1,6 @@
-package com.metrics_board.persistence.repository;
+package com.metrics_board.persistence.repository.roll;
 
-import com.metrics_board.persistence.entity.Project;
+import com.metrics_board.persistence.entity.roll.Project;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,9 +1,10 @@
-package com.metrics_board.persistence.entity;
+package com.metrics_board.persistence.entity.roll;
 
+import com.metrics_board.persistence.enums.roll.ProjectStatusConverter;
 import lombok.*;
 import jakarta.persistence.*;
 import org.hibernate.annotations.UpdateTimestamp;
-import com.metrics_board.persistence.enums.ProjectStatus;
+import com.metrics_board.persistence.enums.roll.ProjectStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -31,7 +32,7 @@ public class Project {
     private String description;
 
     @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ProjectStatusConverter.class)
     private ProjectStatus status;
 
     @Column(name = "created_at", insertable = false, updatable = false)

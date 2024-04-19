@@ -1,9 +1,9 @@
-package com.metrics_board.persistence.repository;
+package com.metrics_board.persistence.repository.roll;
 
 import com.metrics_board.persistence.PostgresTestContainer;
 import com.metrics_board.persistence.TestApplication;
-import com.metrics_board.persistence.entity.Project;
-import com.metrics_board.persistence.enums.ProjectStatus;
+import com.metrics_board.persistence.entity.roll.Project;
+import com.metrics_board.persistence.enums.roll.ProjectStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
@@ -36,7 +36,7 @@ public class ProjectRepositoryTest {
                         foundProject -> Assertions.assertThat(foundProject.getOwnerId()).isNotNull(),
                         foundProject -> Assertions.assertThat(foundProject.getName()).isEqualTo("Project"),
                         foundProject -> Assertions.assertThat(foundProject.getDescription()).isEqualTo("description"),
-                        foundProject -> Assertions.assertThat(foundProject.getStatus()).isEqualTo(ProjectStatus.active),
+                        foundProject -> Assertions.assertThat(foundProject.getStatus()).isEqualTo(ProjectStatus.ACTIVE),
                         foundProject -> Assertions.assertThat(foundProject.getCreatedAt()).isNotNull());
     }
 
@@ -46,7 +46,7 @@ public class ProjectRepositoryTest {
         project.setOwnerId(UUID.randomUUID());
         project.setName("Test");
         project.setDescription("description");
-        project.setStatus(ProjectStatus.active);
+        project.setStatus(ProjectStatus.ACTIVE);
         projectRepository.save(project);
 
         em.flush();
@@ -59,7 +59,7 @@ public class ProjectRepositoryTest {
                         foundProject -> Assertions.assertThat(foundProject.getOwnerId()).isEqualTo(project.getOwnerId()),
                         foundProject -> Assertions.assertThat(foundProject.getName()).isEqualTo("Test"),
                         foundProject -> Assertions.assertThat(foundProject.getDescription()).isEqualTo("description"),
-                        foundProject -> Assertions.assertThat(foundProject.getStatus()).isEqualTo(ProjectStatus.active),
+                        foundProject -> Assertions.assertThat(foundProject.getStatus()).isEqualTo(ProjectStatus.ACTIVE),
                         foundProject -> Assertions.assertThat(foundProject.getCreatedAt()).isNotNull());
     }
 }

@@ -11,7 +11,7 @@ public class PostgresTestContainer implements BeforeAllCallback, AfterAllCallbac
     @Override
     public void beforeAll(ExtensionContext context) {
         postgres = new PostgreSQLContainer<>("postgres:16.2-alpine3.19")
-                .withDatabaseName("testdb")
+                .withDatabaseName("metrics_board")
                 .withUsername("postgres")
                 .withPassword("postgres")
                 .withExposedPorts(5432);

@@ -1,6 +1,5 @@
-package com.metrics_board.persistence.dto.roll;
+package com.metrics_board.app.dto.roll;
 
-import com.metrics_board.persistence.enums.roll.ProjectStatus;
 import lombok.*;
 
 import java.util.UUID;
@@ -15,5 +14,5 @@ public class ProjectResponse {
     private UUID ownerId;
     private String name;
     private String description;
-    private ProjectStatus status;
+    private String status;
 }

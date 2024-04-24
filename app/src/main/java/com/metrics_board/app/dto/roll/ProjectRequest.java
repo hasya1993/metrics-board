@@ -13,6 +13,6 @@ public class ProjectRequest {
     @NotEmpty(message = "Missing 'name' property")
     private String name;
     private String description;
-    @Pattern(regexp = "^(active|suspended|archived)$", message = "Missing 'status' property")
+    @Pattern(regexp = "^(active|suspended|archived)$", message = "Unexpected 'status' value")
     private String status;
 }

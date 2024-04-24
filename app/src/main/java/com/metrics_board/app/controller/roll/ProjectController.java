@@ -4,7 +4,6 @@ import com.metrics_board.app.dto.ApiResponse;
 import com.metrics_board.app.dto.roll.ProjectRequest;
 import com.metrics_board.app.dto.roll.ProjectResponse;
 import com.metrics_board.app.service.roll.ProjectService;
-import com.metrics_board.persistence.entity.roll.Project;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +24,8 @@ public class ProjectController {
     public ResponseEntity<ApiResponse<ProjectResponse>> createProject(
             @RequestHeader("X-ACCOUNT-ID") UUID ownerId,
             @RequestBody @Validated ProjectRequest request) {
-        Project createdProject = projectService.createProject(ownerId, request);
-        ProjectResponse projectResponse = projectService.createProjectResponse(createdProject);
+        ProjectResponse projectResponse = projectService.createProject(ownerId, request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.<ProjectResponse>builder()
-                .ok(true)
-                .result(projectResponse)
-                .build());
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(projectResponse));
     }
 }

@@ -15,18 +15,18 @@ import java.util.UUID;
 public class ProjectService {
     private final ProjectRepository projectRepository;
 
-    public Project createProject(UUID ownerId, ProjectRequest request) {
+    public ProjectResponse createProject(UUID ownerId, ProjectRequest request) {
         Project project = Project.builder()
                 .ownerId(ownerId)
                 .name(request.getName())
                 .description(request.getDescription())
-                .status(request.getStatus() != null ? ProjectStatus.valueOf(request.getStatus().toUpperCase()) : ProjectStatus.ACTIVE)
+                .status(ProjectStatus.of(request.getStatus()).orElse(ProjectStatus.ACTIVE))
                 .build();
 
-        return projectRepository.save(project);
+        return createProjectResponse(projectRepository.save(project));
     }
 
-    public ProjectResponse createProjectResponse(Project project) {
+    private ProjectResponse createProjectResponse(Project project) {
         return ProjectResponse.builder()
                 .id(project.getId())
                 .ownerId(project.getOwnerId())

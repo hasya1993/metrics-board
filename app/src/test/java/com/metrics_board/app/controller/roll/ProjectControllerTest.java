@@ -55,7 +55,7 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void testMissingNameProperty() throws Exception {
+    public void testMissingNamePropertyWithEmptyName() throws Exception {
         when(projectService.createProject(eq(OWNER_ID), any()))
                 .thenReturn(ProjectResponse.builder().build());
 
@@ -73,6 +73,12 @@ public class ProjectControllerTest {
                         jsonPath("$.ok").value(false),
                         jsonPath("$.errorMessage").value("Missing 'name' property")
                 );
+    }
+
+    @Test
+    public void testMissingNamePropertyWithNullName() throws Exception {
+        when(projectService.createProject(eq(OWNER_ID), any()))
+                .thenReturn(ProjectResponse.builder().build());
 
         this.mockMvc.perform(post("/api/v1/project")
                         .header("X-ACCOUNT-ID", OWNER_ID)
@@ -146,6 +152,22 @@ public class ProjectControllerTest {
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.ok").value(false),
                         jsonPath("$.errorMessage").value("'X-ACCOUNT-ID' is invalid")
+                );
+    }
+
+    @Test
+    public void testRequiredRequestBodyIsMissing() throws Exception {
+        when(projectService.createProject(eq(OWNER_ID), any()))
+                .thenReturn(ProjectResponse.builder().build());
+
+        this.mockMvc.perform(post("/api/v1/project")
+                        .header("X-ACCOUNT-ID", OWNER_ID)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("Required request body is missing")
                 );
     }
 

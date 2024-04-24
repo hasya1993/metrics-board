@@ -3,6 +3,7 @@ package com.metrics_board.app.exeption;
 import com.metrics_board.app.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -43,6 +44,11 @@ public class GlobalExceptionHandler {
             return badRequest("'X-ACCOUNT-ID' is invalid");
         }
         return badRequest("Some property is invalid");
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> HttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        return badRequest("Required request body is missing");
     }
 
     private ResponseEntity<ApiResponse<Void>> badRequest(String message) {

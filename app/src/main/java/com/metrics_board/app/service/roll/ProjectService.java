@@ -2,12 +2,14 @@ package com.metrics_board.app.service.roll;
 
 import com.metrics_board.app.dto.roll.ProjectRequest;
 import com.metrics_board.app.dto.roll.ProjectResponse;
+import com.metrics_board.app.exeption.ExceptionResourceNotExit;
 import com.metrics_board.persistence.entity.roll.Project;
 import com.metrics_board.persistence.enums.roll.ProjectStatus;
 import com.metrics_board.persistence.repository.roll.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,6 +28,14 @@ public class ProjectService {
         return createProjectResponse(projectRepository.save(project));
     }
 
+    public ProjectResponse getProject(Long id) throws ExceptionResourceNotExit {
+        Optional<Project> foundProject = projectRepository.findById(id);
+        if (foundProject.isPresent()) {
+            return createProjectResponse(foundProject.get());
+        }
+        throw new ExceptionResourceNotExit();
+    }
+
     private ProjectResponse createProjectResponse(Project project) {
         return ProjectResponse.builder()
                 .id(project.getId())
@@ -33,6 +43,8 @@ public class ProjectService {
                 .name(project.getName())
                 .description(project.getDescription())
                 .status(project.getStatus().getValue())
+                .createdAt(project.getCreatedAt())
+                .updatedAt(project.getUpdatedAt())
                 .build();
     }
 }

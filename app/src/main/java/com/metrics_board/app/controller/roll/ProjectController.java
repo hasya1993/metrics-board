@@ -3,7 +3,7 @@ package com.metrics_board.app.controller.roll;
 import com.metrics_board.app.dto.ApiResponse;
 import com.metrics_board.app.dto.roll.ProjectRequest;
 import com.metrics_board.app.dto.roll.ProjectResponse;
-import com.metrics_board.app.exeption.ExceptionResourceNotExit;
+import com.metrics_board.app.exeption.ResourceNotExitException;
 import com.metrics_board.app.service.roll.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,9 +30,9 @@ public class ProjectController {
     @GetMapping("/api/v1/project/{id}")
     public ResponseEntity<ApiResponse<ProjectResponse>> getProject(
             @RequestHeader("X-ACCOUNT-ID") UUID ownerId,
-            @PathVariable("id") Long id) throws ExceptionResourceNotExit {
-        ProjectResponse projectResponse = projectService.getProject(id);
+            @PathVariable("id") Long id) throws ResourceNotExitException {
+        ProjectResponse projectResponse = projectService.getProject(ownerId, id);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(projectResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(projectResponse));
     }
 }

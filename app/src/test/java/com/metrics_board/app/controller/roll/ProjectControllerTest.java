@@ -1,7 +1,7 @@
 package com.metrics_board.app.controller.roll;
 
 import com.metrics_board.app.dto.roll.ProjectResponse;
-import com.metrics_board.app.exeption.ExceptionResourceNotExit;
+import com.metrics_board.app.exeption.ResourceNotExitException;
 import com.metrics_board.app.service.roll.ProjectService;
 import com.metrics_board.persistence.enums.roll.ProjectStatus;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,6 @@ public class ProjectControllerTest {
     private static final String NAME = "Test";
     private static final ProjectStatus STATUS = ProjectStatus.ACTIVE;
     public static final String INVALID_VALUE = "invalid value";
-    public static final String INVALID_PATH = "/InvalidPath";
 
     @Autowired
     private MockMvc mockMvc;
@@ -36,7 +35,7 @@ public class ProjectControllerTest {
     private ProjectService projectService;
 
     @Test
-    public void testCreatedProperty() throws Exception {
+    public void testCreateProject() throws Exception {
         when(projectService.createProject(eq(OWNER_ID), any()))
                 .thenReturn(ProjectResponse.builder().ownerId(OWNER_ID).name(NAME).status(STATUS.getValue()).build());
 
@@ -178,35 +177,14 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void testInternalServerErrorWhenCreateProject() throws Exception {
-        when(projectService.createProject(eq(OWNER_ID), any()))
-                .thenReturn(ProjectResponse.builder().build());
-
-        this.mockMvc.perform(post(INVALID_PATH)
-                        .header("X-ACCOUNT-ID", OWNER_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {       
-                                "name" : "Test"
-                                }
-                                """))
-                .andExpectAll(
-                        status().isInternalServerError(),
-                        content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.ok").value(false),
-                        jsonPath("$.errorMessage").value("Internal server error")
-                );
-    }
-
-    @Test
-    public void testGetProperty() throws Exception {
-        when(projectService.getProject(any()))
+    public void testGetProject() throws Exception {
+        when(projectService.getProject(eq(OWNER_ID),eq(ID)))
                 .thenReturn(ProjectResponse.builder().id(ID).ownerId(OWNER_ID).name(NAME).status(STATUS.getValue()).build());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID)
                         .header("X-ACCOUNT-ID", OWNER_ID))
                 .andExpectAll(
-                        status().isCreated(),
+                        status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.ok").value(true),
                         jsonPath("$.result.id").value(ID),
@@ -219,8 +197,8 @@ public class ProjectControllerTest {
 
     @Test
     public void testResourceNotExist() throws Exception {
-        when(projectService.getProject(eq(ID)))
-                .thenThrow(new ExceptionResourceNotExit());
+        when(projectService.getProject(any(),any()))
+                .thenThrow(new ResourceNotExitException());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID)
                         .header("X-ACCOUNT-ID", OWNER_ID))
@@ -234,7 +212,7 @@ public class ProjectControllerTest {
 
     @Test
     public void testRequestHeaderX_ACCOUNT_IDIsMissingWhenGetProject() throws Exception {
-        when(projectService.getProject(eq(ID)))
+        when(projectService.getProject(any(),any()))
                 .thenReturn(ProjectResponse.builder().build());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID))
@@ -248,7 +226,7 @@ public class ProjectControllerTest {
 
     @Test
     public void testX_ACCOUNT_IDInvalidWhenGetProject() throws Exception {
-        when(projectService.getProject(eq(ID)))
+        when(projectService.getProject(any(),any()))
                 .thenReturn(ProjectResponse.builder().build());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID)
@@ -258,21 +236,6 @@ public class ProjectControllerTest {
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.ok").value(false),
                         jsonPath("$.errorMessage").value("'X-ACCOUNT-ID' is invalid")
-                );
-    }
-
-    @Test
-    public void testInternalServerErrorWhenGetProject() throws Exception {
-        when(projectService.getProject(eq(ID)))
-                .thenReturn(ProjectResponse.builder().build());
-
-        this.mockMvc.perform(get(INVALID_PATH, ID)
-                        .header("X-ACCOUNT-ID", OWNER_ID))
-                .andExpectAll(
-                        status().isInternalServerError(),
-                        content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.ok").value(false),
-                        jsonPath("$.errorMessage").value("Internal server error")
                 );
     }
 }

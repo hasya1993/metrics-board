@@ -2,7 +2,7 @@ package com.metrics_board.app.service.roll;
 
 import com.metrics_board.app.dto.roll.ProjectRequest;
 import com.metrics_board.app.dto.roll.ProjectResponse;
-import com.metrics_board.app.exeption.ExceptionResourceNotExit;
+import com.metrics_board.app.exeption.ResourceNotExitException;
 import com.metrics_board.persistence.entity.roll.Project;
 import com.metrics_board.persistence.enums.roll.ProjectStatus;
 import com.metrics_board.persistence.repository.roll.ProjectRepository;
@@ -28,12 +28,12 @@ public class ProjectService {
         return createProjectResponse(projectRepository.save(project));
     }
 
-    public ProjectResponse getProject(Long id) throws ExceptionResourceNotExit {
+    public ProjectResponse getProject(UUID ownerId, Long id) throws ResourceNotExitException {
         Optional<Project> foundProject = projectRepository.findById(id);
-        if (foundProject.isPresent()) {
+        if (foundProject.isPresent() && foundProject.get().getOwnerId().equals(ownerId)) {
             return createProjectResponse(foundProject.get());
         }
-        throw new ExceptionResourceNotExit();
+        throw new ResourceNotExitException();
     }
 
     private ProjectResponse createProjectResponse(Project project) {

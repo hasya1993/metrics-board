@@ -2,6 +2,7 @@ package com.metrics_board.app.exeption;
 
 import com.metrics_board.app.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -43,12 +44,20 @@ public class GlobalExceptionHandler {
         if (e.getParameter().getParameterType() == UUID.class) {
             return badRequest("'X-ACCOUNT-ID' is invalid");
         }
+        if (e.getParameter().getParameterType() == Long.class) {
+            return badRequest("id is invalid");
+        }
         return badRequest("Some property is invalid");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Void>> HttpMessageNotReadableException(HttpMessageNotReadableException e) {
         return badRequest("Required request body is missing");
+    }
+
+    @ExceptionHandler(ResourceNotExistException.class)
+    public ResponseEntity<ApiResponse<Void>> ExceptionResourceNotExit(ResourceNotExistException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("Resource not exist"));
     }
 
     private ResponseEntity<ApiResponse<Void>> badRequest(String message) {

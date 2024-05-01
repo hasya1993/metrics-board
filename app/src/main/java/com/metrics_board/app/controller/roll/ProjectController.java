@@ -3,15 +3,13 @@ package com.metrics_board.app.controller.roll;
 import com.metrics_board.app.dto.ApiResponse;
 import com.metrics_board.app.dto.roll.ProjectRequest;
 import com.metrics_board.app.dto.roll.ProjectResponse;
+import com.metrics_board.app.exeption.ResourceNotExistException;
 import com.metrics_board.app.service.roll.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -27,5 +25,14 @@ public class ProjectController {
         ProjectResponse projectResponse = projectService.createProject(ownerId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(projectResponse));
+    }
+
+    @GetMapping("/api/v1/project/{id}")
+    public ResponseEntity<ApiResponse<ProjectResponse>> getProject(
+            @RequestHeader("X-ACCOUNT-ID") UUID ownerId,
+            @PathVariable("id") Long id) throws ResourceNotExistException {
+        ProjectResponse projectResponse = projectService.getProject(ownerId, id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(projectResponse));
     }
 }

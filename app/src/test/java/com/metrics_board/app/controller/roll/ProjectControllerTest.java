@@ -1,7 +1,7 @@
 package com.metrics_board.app.controller.roll;
 
 import com.metrics_board.app.dto.roll.ProjectResponse;
-import com.metrics_board.app.exeption.ResourceNotExitException;
+import com.metrics_board.app.exeption.ResourceNotExistException;
 import com.metrics_board.app.service.roll.ProjectService;
 import com.metrics_board.persistence.enums.roll.ProjectStatus;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class ProjectControllerTest {
     private static final UUID OWNER_ID = UUID.randomUUID();
     private static final String NAME = "Test";
     private static final ProjectStatus STATUS = ProjectStatus.ACTIVE;
-    public static final String INVALID_VALUE = "invalid value";
+    private static final String INVALID_VALUE = "invalid value";
 
     @Autowired
     private MockMvc mockMvc;
@@ -198,7 +198,7 @@ public class ProjectControllerTest {
     @Test
     public void testResourceNotExist() throws Exception {
         when(projectService.getProject(any(),any()))
-                .thenThrow(new ResourceNotExitException());
+                .thenThrow(new ResourceNotExistException());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID)
                         .header("X-ACCOUNT-ID", OWNER_ID))

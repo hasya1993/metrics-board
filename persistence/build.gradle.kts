@@ -15,6 +15,13 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test:3.2.4")
 }
 
+tasks.named <Test>("test") {
+	useJUnitPlatform()
+	testLogging {
+		events("passed", "skipped", "failed")
+	}
+}
+
 dependencyLocking {
 	lockAllConfigurations()
 	lockMode = LockMode.STRICT

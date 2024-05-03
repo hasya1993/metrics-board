@@ -20,6 +20,13 @@ application {
     mainClass = "metrics-board.app.App"
 }
 
+tasks.named <Test>("test") {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
 dependencyLocking {
     lockAllConfigurations()
     lockMode = LockMode.STRICT

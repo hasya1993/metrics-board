@@ -12,10 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,12 +80,7 @@ public class ProjectServiceTest {
 
     @Test
     public void testGetProjectWrongOwner() {
-        Project project = Project.builder()
-                .id(ID)
-                .ownerId(UUID.randomUUID())
-                .name(NAME)
-                .status(ProjectStatus.ACTIVE)
-                .build();
+        Project project = Project.builder().id(ID).ownerId(UUID.randomUUID()).build();
 
         when(projectRepository.findById(ID)).thenReturn(Optional.of(project));
 
@@ -97,12 +89,12 @@ public class ProjectServiceTest {
 
     @Test
     public void testGetProjects() {
-        List<Project> projects = Arrays.asList(
+        List<Project> projects = List.of(
                 Project.builder().id(ID).ownerId(OWNER_ID).name(NAME).status(STATUS).build(),
                 Project.builder().id(ID + 1).ownerId(OWNER_ID).name(NAME).status(STATUS).build()
         );
 
-        when(projectRepository.findAllByOwnerId(OWNER_ID)).thenReturn(Optional.of(projects));
+        when(projectRepository.findAllByOwnerId(OWNER_ID)).thenReturn(projects);
 
         List<ProjectResponse> projectResponseList = projectService.getProjects(OWNER_ID);
 
@@ -116,7 +108,7 @@ public class ProjectServiceTest {
 
     @Test
     public void testGetProjectsEmptyList() {
-        when(projectRepository.findAllByOwnerId(OWNER_ID)).thenReturn(Optional.empty());
+        when(projectRepository.findAllByOwnerId(OWNER_ID)).thenReturn(new ArrayList<>());
 
         List<ProjectResponse> projectResponseList = projectService.getProjects(OWNER_ID);
 

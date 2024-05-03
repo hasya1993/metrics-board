@@ -179,7 +179,7 @@ public class ProjectControllerTest {
     @Test
     public void testGetProject() throws Exception {
         when(projectService.getProject(eq(OWNER_ID), eq(ID)))
-                .thenReturn(ProjectResponse.builder().id(ID).ownerId(OWNER_ID).name(NAME).status(STATUS.getValue()).build());
+                .thenReturn(ProjectResponse.builder().id(ID).ownerId(OWNER_ID).build());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID)
                         .header("X-ACCOUNT-ID", OWNER_ID))
@@ -189,8 +189,6 @@ public class ProjectControllerTest {
                         jsonPath("$.ok").value(true),
                         jsonPath("$.result.id").value(ID),
                         jsonPath("$.result.ownerId").value(OWNER_ID.toString()),
-                        jsonPath("$.result.name").value(NAME),
-                        jsonPath("$.result.status").value(STATUS.getValue()),
                         jsonPath("$.errorMessage").doesNotHaveJsonPath()
                 );
     }
@@ -242,9 +240,9 @@ public class ProjectControllerTest {
     @Test
     public void testGetProjects() throws Exception {
         when(projectService.getProjects(eq(OWNER_ID)))
-                .thenReturn(Arrays.asList(
-                        ProjectResponse.builder().id(ID).ownerId(OWNER_ID).name(NAME).status(STATUS.getValue()).build(),
-                        ProjectResponse.builder().id(ID + 1).ownerId(OWNER_ID).name(NAME).status(STATUS.getValue()).build()
+                .thenReturn(List.of(
+                        ProjectResponse.builder().id(ID).ownerId(OWNER_ID).build(),
+                        ProjectResponse.builder().id(ID + 1).ownerId(OWNER_ID).build()
                 ));
 
         this.mockMvc.perform(get("/api/v1/project")
@@ -255,12 +253,8 @@ public class ProjectControllerTest {
                         jsonPath("$.ok").value(true),
                         jsonPath("$.result[0].id").value(ID),
                         jsonPath("$.result[0].ownerId").value(OWNER_ID.toString()),
-                        jsonPath("$.result[0].name").value(NAME),
-                        jsonPath("$.result[0].status").value(STATUS.getValue()),
                         jsonPath("$.result[1].id").value(ID + 1),
                         jsonPath("$.result[1].ownerId").value(OWNER_ID.toString()),
-                        jsonPath("$.result[1].name").value(NAME),
-                        jsonPath("$.result[1].status").value(STATUS.getValue()),
                         jsonPath("$.errorMessage").doesNotHaveJsonPath()
                 );
     }

@@ -39,13 +39,11 @@ public class ProjectService {
     }
 
     public List<ProjectResponse> getProjects(UUID ownerId) {
-        Optional<List<Project>> foundProjects = projectRepository.findAllByOwnerId(ownerId);
+        List<Project> foundProjects = projectRepository.findAllByOwnerId(ownerId);
         List<ProjectResponse> projectResponseList = new ArrayList<>();
 
-        if (foundProjects.isPresent()) {
-            for (Project project : foundProjects.get()) {
-                projectResponseList.add(createProjectResponse(project));
-            }
+        for (Project project : foundProjects) {
+            projectResponseList.add(createProjectResponse(project));
         }
 
         return projectResponseList;

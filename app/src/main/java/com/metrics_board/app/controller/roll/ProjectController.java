@@ -44,4 +44,13 @@ public class ProjectController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(projectResponseList));
     }
+
+    @DeleteMapping("/api/v1/project/{id}")
+    public ResponseEntity<ApiResponse<ProjectResponse>> deleteProject(
+            @RequestHeader("X-ACCOUNT-ID") UUID ownerId,
+            @PathVariable("id") Long id) {
+        projectService.deleteProject(ownerId, id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

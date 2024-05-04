@@ -7,6 +7,7 @@ import com.metrics_board.persistence.entity.roll.Project;
 import com.metrics_board.persistence.enums.roll.ProjectStatus;
 import com.metrics_board.persistence.repository.roll.ProjectRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
@@ -47,6 +49,19 @@ public class ProjectService {
         }
 
         return projectResponseList;
+    }
+
+    public void deleteProject(UUID ownerId, Long id) {
+        Optional<Project> foundProject = projectRepository.findById(id);
+        if (foundProject.isPresent()) {
+            if (foundProject.get().getOwnerId().equals(ownerId)) {
+                projectRepository.deleteById(id);
+            } else {
+                log.warn(ownerId + " tried to delete id " + id + " that is not owned by");
+            }
+        } else {
+            log.warn(ownerId + " tried to delete id " + id + " that does not exist");
+        }
     }
 
     private ProjectResponse createProjectResponse(Project project) {

@@ -9,6 +9,8 @@ import com.metrics_board.persistence.repository.roll.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +36,17 @@ public class ProjectService {
             return createProjectResponse(foundProject.get());
         }
         throw new ResourceNotExistException();
+    }
+
+    public List<ProjectResponse> getProjects(UUID ownerId) {
+        List<Project> foundProjects = projectRepository.findAllByOwnerId(ownerId);
+        List<ProjectResponse> projectResponseList = new ArrayList<>();
+
+        for (Project project : foundProjects) {
+            projectResponseList.add(createProjectResponse(project));
+        }
+
+        return projectResponseList;
     }
 
     private ProjectResponse createProjectResponse(Project project) {

@@ -11,7 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.UUID;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -178,8 +178,8 @@ public class ProjectControllerTest {
 
     @Test
     public void testGetProject() throws Exception {
-        when(projectService.getProject(eq(OWNER_ID),eq(ID)))
-                .thenReturn(ProjectResponse.builder().id(ID).ownerId(OWNER_ID).name(NAME).status(STATUS.getValue()).build());
+        when(projectService.getProject(eq(OWNER_ID), eq(ID)))
+                .thenReturn(ProjectResponse.builder().id(ID).ownerId(OWNER_ID).build());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID)
                         .header("X-ACCOUNT-ID", OWNER_ID))
@@ -189,15 +189,13 @@ public class ProjectControllerTest {
                         jsonPath("$.ok").value(true),
                         jsonPath("$.result.id").value(ID),
                         jsonPath("$.result.ownerId").value(OWNER_ID.toString()),
-                        jsonPath("$.result.name").value(NAME),
-                        jsonPath("$.result.status").value(STATUS.getValue()),
                         jsonPath("$.errorMessage").doesNotHaveJsonPath()
                 );
     }
 
     @Test
     public void testResourceNotExist() throws Exception {
-        when(projectService.getProject(any(),any()))
+        when(projectService.getProject(any(), any()))
                 .thenThrow(new ResourceNotExistException());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID)
@@ -212,7 +210,7 @@ public class ProjectControllerTest {
 
     @Test
     public void testRequestHeaderX_ACCOUNT_IDIsMissingWhenGetProject() throws Exception {
-        when(projectService.getProject(any(),any()))
+        when(projectService.getProject(any(), any()))
                 .thenReturn(ProjectResponse.builder().build());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID))
@@ -226,10 +224,77 @@ public class ProjectControllerTest {
 
     @Test
     public void testX_ACCOUNT_IDInvalidWhenGetProject() throws Exception {
-        when(projectService.getProject(any(),any()))
+        when(projectService.getProject(any(), any()))
                 .thenReturn(ProjectResponse.builder().build());
 
         this.mockMvc.perform(get("/api/v1/project/{id}", ID)
+                        .header("X-ACCOUNT-ID", INVALID_VALUE))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("'X-ACCOUNT-ID' is invalid")
+                );
+    }
+
+    @Test
+    public void testGetProjects() throws Exception {
+        when(projectService.getProjects(eq(OWNER_ID)))
+                .thenReturn(List.of(
+                        ProjectResponse.builder().id(ID).ownerId(OWNER_ID).build(),
+                        ProjectResponse.builder().id(ID + 1).ownerId(OWNER_ID).build()
+                ));
+
+        this.mockMvc.perform(get("/api/v1/project")
+                        .header("X-ACCOUNT-ID", OWNER_ID))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(true),
+                        jsonPath("$.result[0].id").value(ID),
+                        jsonPath("$.result[0].ownerId").value(OWNER_ID.toString()),
+                        jsonPath("$.result[1].id").value(ID + 1),
+                        jsonPath("$.result[1].ownerId").value(OWNER_ID.toString()),
+                        jsonPath("$.errorMessage").doesNotHaveJsonPath()
+                );
+    }
+
+    @Test
+    public void testGetProjectsWithEmptyList() throws Exception {
+        when(projectService.getProjects(eq(OWNER_ID)))
+                .thenReturn(new ArrayList<>());
+
+        this.mockMvc.perform(get("/api/v1/project")
+                        .header("X-ACCOUNT-ID", OWNER_ID))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(true),
+                        jsonPath("$.result").isEmpty(),
+                        jsonPath("$.errorMessage").doesNotHaveJsonPath()
+                );
+    }
+
+    @Test
+    public void testRequestHeaderX_ACCOUNT_IDIsMissingWhenGetProjects() throws Exception {
+        when(projectService.getProjects(any()))
+                .thenReturn(new ArrayList<>());
+
+        this.mockMvc.perform(get("/api/v1/project"))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("Request header 'X-ACCOUNT-ID' is missing")
+                );
+    }
+
+    @Test
+    public void testX_ACCOUNT_IDInvalidWhenGetProjects() throws Exception {
+        when(projectService.getProjects(any()))
+                .thenReturn(new ArrayList<>());
+
+        this.mockMvc.perform(get("/api/v1/project")
                         .header("X-ACCOUNT-ID", INVALID_VALUE))
                 .andExpectAll(
                         status().isBadRequest(),

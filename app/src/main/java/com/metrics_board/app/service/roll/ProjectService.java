@@ -57,10 +57,10 @@ public class ProjectService {
             if (foundProject.get().getOwnerId().equals(ownerId)) {
                 projectRepository.deleteById(id);
             } else {
-                log.warn(ownerId + " tried to delete id " + id + " that is not owned by");
+                log.warn("{} tried to delete project id {} that is not owned by", ownerId, id);
             }
         } else {
-            log.warn(ownerId + " tried to delete id " + id + " that does not exist");
+            log.warn("{} tried to delete project id {} that does not exist", ownerId, id);
         }
     }
 

@@ -312,7 +312,7 @@ public class ProjectControllerTest {
                         .header("X-ACCOUNT-ID", OWNER_ID))
                 .andExpectAll(
                         status().isNoContent(),
-                        jsonPath("$").doesNotExist()
+                        content().string("")
                 );
     }
 

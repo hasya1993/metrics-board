@@ -15,9 +15,9 @@ import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = ProjectController.class)
@@ -295,6 +295,45 @@ public class ProjectControllerTest {
                 .thenReturn(new ArrayList<>());
 
         this.mockMvc.perform(get("/api/v1/project")
+                        .header("X-ACCOUNT-ID", INVALID_VALUE))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("'X-ACCOUNT-ID' is invalid")
+                );
+    }
+
+    @Test
+    public void testDeleteProject() throws Exception {
+        doNothing().when(projectService).deleteProject(OWNER_ID, ID);
+
+        this.mockMvc.perform(delete("/api/v1/project/{id}", ID)
+                        .header("X-ACCOUNT-ID", OWNER_ID))
+                .andExpectAll(
+                        status().isNoContent(),
+                        content().string("")
+                );
+    }
+
+    @Test
+    public void testRequestHeaderX_ACCOUNT_IDIsMissingWhenDeleteProject() throws Exception {
+        doNothing().when(projectService).deleteProject(any(), any());
+
+        this.mockMvc.perform(delete("/api/v1/project/{id}", ID))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("Request header 'X-ACCOUNT-ID' is missing")
+                );
+    }
+
+    @Test
+    public void testX_ACCOUNT_IDInvalidWhenDeleteProject() throws Exception {
+        doNothing().when(projectService).deleteProject(any(), any());
+
+        this.mockMvc.perform(delete("/api/v1/project/{id}", ID)
                         .header("X-ACCOUNT-ID", INVALID_VALUE))
                 .andExpectAll(
                         status().isBadRequest(),

@@ -16,8 +16,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectServiceTest {
@@ -114,5 +113,43 @@ public class ProjectServiceTest {
 
         verify(projectRepository).findAllByOwnerId(OWNER_ID);
         assertEquals(0, projectResponseList.size());
+    }
+
+    @Test
+    public void testDeleteProject() {
+        Project project = Project.builder()
+                .id(ID)
+                .ownerId(OWNER_ID)
+                .build();
+
+        when(projectRepository.findById(ID)).thenReturn(Optional.of(project));
+
+        projectService.deleteProject(OWNER_ID, ID);
+
+        verify(projectRepository).findById(ID);
+        verify(projectRepository).deleteById(ID);
+    }
+
+    @Test
+    public void testDeleteProjectNotOwner() {
+        Project project = Project.builder()
+                .id(ID)
+                .ownerId(OWNER_ID)
+                .build();
+
+        when(projectRepository.findById(ID)).thenReturn(Optional.of(project));
+
+        projectService.deleteProject(UUID.randomUUID(), ID);
+
+        verify(projectRepository, never()).deleteById(ID);
+    }
+
+    @Test
+    public void testDeleteProjectNotExist() {
+        when(projectRepository.findById(ID)).thenReturn(Optional.empty());
+
+        projectService.deleteProject(OWNER_ID, ID);
+
+        verify(projectRepository, never()).deleteById(ID);
     }
 }

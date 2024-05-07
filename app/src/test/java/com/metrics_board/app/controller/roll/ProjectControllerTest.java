@@ -1,6 +1,7 @@
 package com.metrics_board.app.controller.roll;
 
 import com.metrics_board.app.dto.roll.ProjectResponse;
+import com.metrics_board.app.exeption.MissedDataToUpdateException;
 import com.metrics_board.app.exeption.ResourceNotExistException;
 import com.metrics_board.app.service.roll.ProjectService;
 import com.metrics_board.persistence.enums.roll.ProjectStatus;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -26,6 +28,7 @@ public class ProjectControllerTest {
     private static final UUID OWNER_ID = UUID.randomUUID();
     private static final String NAME = "Test";
     private static final ProjectStatus STATUS = ProjectStatus.ACTIVE;
+    private static final LocalDateTime UPDATED_AT = LocalDateTime.now();
     private static final String INVALID_VALUE = "invalid value";
 
     @Autowired
@@ -107,7 +110,7 @@ public class ProjectControllerTest {
                         .content("""
                                 {       
                                 "name" : "Test",  
-                                "status" : "action"  
+                                "status" : "DataIsInvalid"  
                                 }
                                 """))
                 .andExpectAll(
@@ -146,7 +149,6 @@ public class ProjectControllerTest {
         this.mockMvc.perform(post("/api/v1/project")
                         .header("X-ACCOUNT-ID", INVALID_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
-
                         .content("""
                                 {       
                                 "name" : "Test"  
@@ -161,7 +163,7 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void testRequiredRequestBodyIsMissing() throws Exception {
+    public void testRequiredRequestBodyIsMissingWhenCreateProject() throws Exception {
         when(projectService.createProject(eq(OWNER_ID), any()))
                 .thenReturn(ProjectResponse.builder().build());
 
@@ -301,6 +303,154 @@ public class ProjectControllerTest {
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.ok").value(false),
                         jsonPath("$.errorMessage").value("'X-ACCOUNT-ID' is invalid")
+                );
+    }
+
+    @Test
+    public void testUpdateProject() throws Exception {
+        when(projectService.updateProject(eq(OWNER_ID), eq(ID), any()))
+                .thenReturn(ProjectResponse.builder()
+                        .id(ID)
+                        .ownerId(OWNER_ID)
+                        .status(ProjectStatus.SUSPENDED.getValue())
+                        .updatedAt(UPDATED_AT)
+                        .build());
+
+        this.mockMvc.perform(patch("/api/v1/project/{id}", ID)
+                        .header("X-ACCOUNT-ID", OWNER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {       
+                                "status" : "suspended"  
+                                }
+                                """))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(true),
+                        jsonPath("$.result.id").value(ID),
+                        jsonPath("$.result.ownerId").value(OWNER_ID.toString()),
+                        jsonPath("$.result.status").value(ProjectStatus.SUSPENDED.getValue()),
+                        jsonPath("$.result.updatedAt").value(UPDATED_AT.toString()),
+                        jsonPath("$.errorMessage").doesNotHaveJsonPath()
+                );
+    }
+
+    @Test
+    public void testResourceNotExistWhenUpdateProject() throws Exception {
+        when(projectService.updateProject(any(), any(), any()))
+                .thenThrow(new ResourceNotExistException());
+
+        this.mockMvc.perform(patch("/api/v1/project/{id}", ID)
+                        .header("X-ACCOUNT-ID", OWNER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {       
+                                "status" : "suspended"  
+                                }
+                                """))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("Resource not exist")
+                );
+    }
+
+    @Test
+    public void testRequestHeaderX_ACCOUNT_IDIsMissingWhenUpdateProject() throws Exception {
+        when(projectService.updateProject(any(), any(), any()))
+                .thenReturn(ProjectResponse.builder().build());
+
+        this.mockMvc.perform(patch("/api/v1/project/{id}", ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {       
+                                "status" : "suspended"  
+                                }
+                                """))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("Request header 'X-ACCOUNT-ID' is missing")
+                );
+    }
+
+    @Test
+    public void testX_ACCOUNT_IDInvalidWhenUpdateProject() throws Exception {
+        when(projectService.updateProject(any(), any(), any()))
+                .thenReturn(ProjectResponse.builder().build());
+
+        this.mockMvc.perform(patch("/api/v1/project/{id}", ID)
+                        .header("X-ACCOUNT-ID", INVALID_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {       
+                                "status" : "suspended"  
+                                }
+                                """))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("'X-ACCOUNT-ID' is invalid")
+                );
+    }
+
+    @Test
+    public void testRequiredRequestBodyIsMissingWhenUpdateProject() throws Exception {
+        when(projectService.updateProject(any(), any(), any()))
+                .thenReturn(ProjectResponse.builder().build());
+
+        this.mockMvc.perform(patch("/api/v1/project/{id}", ID)
+                        .header("X-ACCOUNT-ID", OWNER_ID)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("Required request body is missing")
+                );
+    }
+
+    @Test
+    public void testRequiredRequestBodyIsEmptyWhenUpdateProject() throws Exception {
+        when(projectService.updateProject(any(), any(), any()))
+                .thenThrow(new MissedDataToUpdateException());
+
+        this.mockMvc.perform(patch("/api/v1/project/{id}", ID)
+                        .header("X-ACCOUNT-ID", OWNER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {}
+                                """))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("Missed data to update")
+                );
+    }
+
+    @Test
+    public void testDataIsInvalidWhenUpdateProject() throws Exception {
+        when(projectService.updateProject(eq(OWNER_ID), eq(ID), any()))
+                .thenThrow(new MissedDataToUpdateException());
+
+        this.mockMvc.perform(patch("/api/v1/project/{id}", ID)
+                        .header("X-ACCOUNT-ID", OWNER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {        
+                                "status" : "DataIsInvalid"  
+                                }
+                                """))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.ok").value(false),
+                        jsonPath("$.errorMessage").value("Missed data to update")
                 );
     }
 

@@ -2,6 +2,7 @@ package com.metrics_board.app.service.roll;
 
 import com.metrics_board.app.dto.roll.ProjectRequest;
 import com.metrics_board.app.dto.roll.ProjectResponse;
+import com.metrics_board.app.exeption.MissedDataToUpdateException;
 import com.metrics_board.app.exeption.ResourceNotExistException;
 import com.metrics_board.persistence.entity.roll.Project;
 import com.metrics_board.persistence.enums.roll.ProjectStatus;
@@ -12,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,6 +26,7 @@ public class ProjectServiceTest {
     private static final UUID OWNER_ID = UUID.randomUUID();
     private static final String NAME = "Test";
     private static final ProjectStatus STATUS = ProjectStatus.ACTIVE;
+    private static final LocalDateTime UPDATED_AT = LocalDateTime.now();
 
     @Mock
     ProjectRepository projectRepository;
@@ -113,6 +116,107 @@ public class ProjectServiceTest {
 
         verify(projectRepository).findAllByOwnerId(OWNER_ID);
         assertEquals(0, projectResponseList.size());
+    }
+
+    @Test
+    public void testUpdateProject() throws ResourceNotExistException, MissedDataToUpdateException {
+        Project project = Project.builder()
+                .id(ID)
+                .ownerId(OWNER_ID)
+                .status(ProjectStatus.ACTIVE)
+                .build();
+
+        Project updateProject = Project.builder()
+                .id(ID)
+                .ownerId(OWNER_ID)
+                .status(ProjectStatus.SUSPENDED)
+                .updatedAt(UPDATED_AT)
+                .build();
+
+        ProjectRequest request = ProjectRequest.builder()
+                .status(ProjectStatus.SUSPENDED.getValue())
+                .build();
+
+        when(projectRepository.findById(ID)).thenReturn(Optional.of(project));
+        when(projectRepository.save(any(Project.class))).thenReturn(updateProject);
+
+        ProjectResponse response = projectService.updateProject(OWNER_ID, ID, request);
+
+        verify(projectRepository).findById(ID);
+        verify(projectRepository).save(any(Project.class));
+        assertNotNull(response);
+        assertEquals(ID, response.getId());
+        assertEquals(OWNER_ID, response.getOwnerId());
+        assertEquals(UPDATED_AT, response.getUpdatedAt());
+    }
+
+    @Test
+    public void testUpdateProjectNotFound() {
+        ProjectRequest request = ProjectRequest.builder()
+                .status(ProjectStatus.SUSPENDED.getValue())
+                .build();
+
+        when(projectRepository.findById(ID)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotExistException.class, () -> projectService.updateProject(OWNER_ID, ID, request));
+    }
+
+    @Test
+    public void testUpdateProjectWrongOwner() {
+        Project project = Project.builder().id(ID).ownerId(UUID.randomUUID()).build();
+
+        ProjectRequest request = ProjectRequest.builder()
+                .status(ProjectStatus.SUSPENDED.getValue())
+                .build();
+
+        when(projectRepository.findById(ID)).thenReturn(Optional.of(project));
+
+        assertThrows(ResourceNotExistException.class, () -> projectService.updateProject(OWNER_ID, ID, request));
+    }
+
+    @Test
+    public void testUpdateProjectBodyIsEmpty() {
+        Project project = Project.builder()
+                .id(ID)
+                .ownerId(OWNER_ID)
+                .status(ProjectStatus.ACTIVE)
+                .build();
+
+        ProjectRequest request = ProjectRequest.builder().build();
+
+        when(projectRepository.findById(ID)).thenReturn(Optional.of(project));
+
+        assertThrows(MissedDataToUpdateException.class, () -> projectService.updateProject(OWNER_ID, ID, request));
+    }
+
+    @Test
+    public void testUpdateProjectNameIsInvalid() {
+        Project project = Project.builder()
+                .id(ID)
+                .ownerId(OWNER_ID)
+                .status(ProjectStatus.ACTIVE)
+                .build();
+
+        ProjectRequest request = ProjectRequest.builder().name("").build();
+
+        when(projectRepository.findById(ID)).thenReturn(Optional.of(project));
+
+        assertThrows(MissedDataToUpdateException.class, () -> projectService.updateProject(OWNER_ID, ID, request));
+    }
+
+    @Test
+    public void testUpdateProjectStatusIsInvalid() {
+        Project project = Project.builder()
+                .id(ID)
+                .ownerId(OWNER_ID)
+                .status(ProjectStatus.ACTIVE)
+                .build();
+
+        ProjectRequest request = ProjectRequest.builder().status("").build();
+
+        when(projectRepository.findById(ID)).thenReturn(Optional.of(project));
+
+        assertThrows(MissedDataToUpdateException.class, () -> projectService.updateProject(OWNER_ID, ID, request));
     }
 
     @Test

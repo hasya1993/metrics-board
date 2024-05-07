@@ -2,6 +2,7 @@ package com.metrics_board.app.service.roll;
 
 import com.metrics_board.app.dto.roll.ProjectRequest;
 import com.metrics_board.app.dto.roll.ProjectResponse;
+import com.metrics_board.app.exeption.MissedDataToUpdateException;
 import com.metrics_board.app.exeption.ResourceNotExistException;
 import com.metrics_board.persistence.entity.roll.Project;
 import com.metrics_board.persistence.enums.roll.ProjectStatus;
@@ -49,6 +50,44 @@ public class ProjectService {
         }
 
         return projectResponseList;
+    }
+
+    public ProjectResponse updateProject(UUID ownerId, Long id, ProjectRequest request) throws ResourceNotExistException, MissedDataToUpdateException {
+        Optional<Project> foundProject = projectRepository.findById(id);
+        if (foundProject.isPresent() && foundProject.get().getOwnerId().equals(ownerId)) {
+            if (request.getName() == null && request.getDescription() == null && request.getStatus() == null) {
+                throw new MissedDataToUpdateException();
+            }
+
+            Project updateProject = foundProject.get();
+
+            if (request.getName() != null) {
+                if (!request.getName().equals("")) {
+                    updateProject.setName(request.getName());
+                } else {
+                    throw new MissedDataToUpdateException();
+                }
+            }
+
+            if (request.getDescription() != null) {
+                if (!request.getDescription().equals("")) {
+                    updateProject.setDescription(request.getDescription());
+                } else {
+                    updateProject.setDescription(null);
+                }
+            }
+
+            if (request.getStatus() != null) {
+                if (request.getStatus().matches("^(active|suspended|archived)$")) {
+                    updateProject.setStatus(ProjectStatus.of(request.getStatus()).get());
+                } else {
+                    throw new MissedDataToUpdateException();
+                }
+            }
+
+            return createProjectResponse(projectRepository.save(updateProject));
+        }
+        throw new ResourceNotExistException();
     }
 
     public void deleteProject(UUID ownerId, Long id) {

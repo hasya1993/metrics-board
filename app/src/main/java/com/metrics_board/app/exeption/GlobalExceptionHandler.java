@@ -55,6 +55,11 @@ public class GlobalExceptionHandler {
         return badRequest("Required request body is missing");
     }
 
+    @ExceptionHandler(MissedDataToUpdateException.class)
+    public ResponseEntity<ApiResponse<Void>> ExceptionResourceNotExit(MissedDataToUpdateException e) {
+        return badRequest("Missed data to update");
+    }
+
     @ExceptionHandler(ResourceNotExistException.class)
     public ResponseEntity<ApiResponse<Void>> ExceptionResourceNotExit(ResourceNotExistException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("Resource not exist"));

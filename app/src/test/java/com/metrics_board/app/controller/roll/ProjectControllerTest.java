@@ -417,7 +417,7 @@ public class ProjectControllerTest {
     @Test
     public void testRequiredRequestBodyIsEmptyWhenUpdateProject() throws Exception {
         when(projectService.updateProject(any(), any(), any()))
-                .thenThrow(new MissedDataToUpdateException());
+                .thenThrow(new MissedDataToUpdateException("Missed data to update"));
 
         this.mockMvc.perform(patch("/api/v1/project/{id}", ID)
                         .header("X-ACCOUNT-ID", OWNER_ID)
@@ -436,7 +436,7 @@ public class ProjectControllerTest {
     @Test
     public void testDataIsInvalidWhenUpdateProject() throws Exception {
         when(projectService.updateProject(eq(OWNER_ID), eq(ID), any()))
-                .thenThrow(new MissedDataToUpdateException());
+                .thenThrow(new MissedDataToUpdateException("Invalid status to update"));
 
         this.mockMvc.perform(patch("/api/v1/project/{id}", ID)
                         .header("X-ACCOUNT-ID", OWNER_ID)
@@ -450,7 +450,7 @@ public class ProjectControllerTest {
                         status().isBadRequest(),
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.ok").value(false),
-                        jsonPath("$.errorMessage").value("Missed data to update")
+                        jsonPath("$.errorMessage").value("Invalid status to update")
                 );
     }
 

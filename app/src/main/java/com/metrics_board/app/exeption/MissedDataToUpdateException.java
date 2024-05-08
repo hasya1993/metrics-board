@@ -1,4 +1,10 @@
 package com.metrics_board.app.exeption;
 
-public class MissedDataToUpdateException extends Exception {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class MissedDataToUpdateException extends RuntimeException {
+    private final String message;
 }

@@ -47,7 +47,7 @@ public class ProjectController {
     }
 
     @PatchMapping("/api/v1/project/{id}")
-    public ResponseEntity<ApiResponse<ProjectResponse>> pathProject(
+    public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(
             @RequestHeader("X-ACCOUNT-ID") UUID ownerId,
             @PathVariable("id") Long id,
             @RequestBody ProjectRequest request) throws ResourceNotExistException, MissedDataToUpdateException {

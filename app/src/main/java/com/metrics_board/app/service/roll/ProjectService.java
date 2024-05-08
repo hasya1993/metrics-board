@@ -52,42 +52,20 @@ public class ProjectService {
         return projectResponseList;
     }
 
-    public ProjectResponse updateProject(UUID ownerId, Long id, ProjectRequest request) throws ResourceNotExistException, MissedDataToUpdateException {
+    public ProjectResponse updateProject(UUID ownerId, Long id, ProjectRequest request) throws ResourceNotExistException {
         Optional<Project> foundProject = projectRepository.findById(id);
-        if (foundProject.isPresent() && foundProject.get().getOwnerId().equals(ownerId)) {
-            if (request.getName() == null && request.getDescription() == null && request.getStatus() == null) {
-                throw new MissedDataToUpdateException();
-            }
 
-            Project updateProject = foundProject.get();
-
-            if (request.getName() != null) {
-                if (!request.getName().equals("")) {
-                    updateProject.setName(request.getName());
-                } else {
-                    throw new MissedDataToUpdateException();
-                }
-            }
-
-            if (request.getDescription() != null) {
-                if (!request.getDescription().equals("")) {
-                    updateProject.setDescription(request.getDescription());
-                } else {
-                    updateProject.setDescription(null);
-                }
-            }
-
-            if (request.getStatus() != null) {
-                if (request.getStatus().matches("^(active|suspended|archived)$")) {
-                    updateProject.setStatus(ProjectStatus.of(request.getStatus()).get());
-                } else {
-                    throw new MissedDataToUpdateException();
-                }
-            }
-
-            return createProjectResponse(projectRepository.save(updateProject));
+        if (foundProject.isEmpty() || !foundProject.get().getOwnerId().equals(ownerId)) {
+            throw new ResourceNotExistException();
         }
-        throw new ResourceNotExistException();
+
+        validateProjectRequest(request);
+
+        Project updateProject = foundProject.get();
+
+        updateProjectFields(request, updateProject);
+
+        return createProjectResponse(projectRepository.save(updateProject));
     }
 
     public void deleteProject(UUID ownerId, Long id) {
@@ -113,5 +91,33 @@ public class ProjectService {
                 .createdAt(project.getCreatedAt())
                 .updatedAt(project.getUpdatedAt())
                 .build();
+    }
+
+    private void validateProjectRequest(ProjectRequest request) {
+        if (request.getName() == null && request.getDescription() == null && request.getStatus() == null) {
+            throw new MissedDataToUpdateException("Missed data to update");
+        }
+
+        if (request.getName() != null && request.getName().equals("")) {
+            throw new MissedDataToUpdateException("Invalid name to update");
+        }
+
+        if (request.getStatus() != null && !request.getStatus().matches("^(active|suspended|archived)$")) {
+            throw new MissedDataToUpdateException("Invalid status to update");
+        }
+    }
+
+    private void updateProjectFields(ProjectRequest request, Project updateProject) {
+        if (request.getName() != null) {
+            updateProject.setName(request.getName());
+        }
+
+        if (request.getDescription() != null) {
+            updateProject.setDescription(request.getDescription().equals("") ? null : request.getDescription());
+        }
+
+        if (request.getStatus() != null) {
+            updateProject.setStatus(ProjectStatus.of(request.getStatus()).get());
+        }
     }
 }

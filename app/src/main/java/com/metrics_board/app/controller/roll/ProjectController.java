@@ -3,6 +3,7 @@ package com.metrics_board.app.controller.roll;
 import com.metrics_board.app.dto.ApiResponse;
 import com.metrics_board.app.dto.roll.ProjectRequest;
 import com.metrics_board.app.dto.roll.ProjectResponse;
+import com.metrics_board.app.exeption.MissedDataToUpdateException;
 import com.metrics_board.app.exeption.ResourceNotExistException;
 import com.metrics_board.app.service.roll.ProjectService;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,16 @@ public class ProjectController {
         List<ProjectResponse> projectResponseList = projectService.getProjects(ownerId);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(projectResponseList));
+    }
+
+    @PatchMapping("/api/v1/project/{id}")
+    public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(
+            @RequestHeader("X-ACCOUNT-ID") UUID ownerId,
+            @PathVariable("id") Long id,
+            @RequestBody ProjectRequest request) throws ResourceNotExistException, MissedDataToUpdateException {
+        ProjectResponse projectResponse = projectService.updateProject(ownerId, id, request);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(projectResponse));
     }
 
     @DeleteMapping("/api/v1/project/{id}")

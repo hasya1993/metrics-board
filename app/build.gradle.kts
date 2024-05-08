@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
     implementation(project(":persistence"))
+    implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.springframework.boot:spring-boot-starter-web:3.2.4")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.2.4")
     implementation("org.hibernate:hibernate-validator:8.0.1.Final")

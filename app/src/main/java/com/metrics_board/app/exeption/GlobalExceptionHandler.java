@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiResponse<Void>> MethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+    public ResponseEntity<ApiResponse<Void>> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         if (e.getParameter().getParameterType() == UUID.class) {
             return badRequest("'X-ACCOUNT-ID' is invalid");
         }
@@ -51,17 +51,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Void>> HttpMessageNotReadableException(HttpMessageNotReadableException e) {
+    public ResponseEntity<ApiResponse<Void>> httpMessageNotReadableException(HttpMessageNotReadableException e) {
         return badRequest("Required request body is missing");
     }
 
     @ExceptionHandler(MissedDataToUpdateException.class)
-    public ResponseEntity<ApiResponse<Void>> MissedDataToUpdateException(MissedDataToUpdateException e) {
+    public ResponseEntity<ApiResponse<Void>> missedDataToUpdateException(MissedDataToUpdateException e) {
         return badRequest(e.getMessage());
     }
 
     @ExceptionHandler(ResourceNotExistException.class)
-    public ResponseEntity<ApiResponse<Void>> ResourceNotExistException(ResourceNotExistException e) {
+    public ResponseEntity<ApiResponse<Void>> resourceNotExistException(ResourceNotExistException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("Resource not exist"));
     }
 

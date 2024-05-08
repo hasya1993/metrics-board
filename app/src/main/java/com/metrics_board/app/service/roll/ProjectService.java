@@ -9,6 +9,7 @@ import com.metrics_board.persistence.enums.roll.ProjectStatus;
 import com.metrics_board.persistence.repository.roll.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -94,16 +95,16 @@ public class ProjectService {
     }
 
     private void validateProjectRequest(ProjectRequest request) {
-        if (request.getName() == null && request.getDescription() == null && request.getStatus() == null) {
+        if (ObjectUtils.allNull(request.getName(), request.getDescription(), request.getStatus())) {
             throw new MissedDataToUpdateException("Missed data to update");
         }
 
         if (request.getName() != null && request.getName().equals("")) {
-            throw new MissedDataToUpdateException("Invalid name to update");
+            throw new MissedDataToUpdateException("Invalid 'name' to update");
         }
 
         if (request.getStatus() != null && !request.getStatus().matches("^(active|suspended|archived)$")) {
-            throw new MissedDataToUpdateException("Invalid status to update");
+            throw new MissedDataToUpdateException("Invalid 'status' to update");
         }
     }
 
@@ -116,8 +117,6 @@ public class ProjectService {
             updateProject.setDescription(request.getDescription().equals("") ? null : request.getDescription());
         }
 
-        if (request.getStatus() != null) {
-            updateProject.setStatus(ProjectStatus.of(request.getStatus()).get());
-        }
+        ProjectStatus.of(request.getStatus()).ifPresent(updateProject::setStatus);
     }
 }

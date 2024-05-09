@@ -1,7 +1,7 @@
 package com.metrics_board.persistence.entity.roll;
 
-import com.metrics_board.persistence.enums.roll.ProjectStatus;
-import com.metrics_board.persistence.enums.roll.ProjectStatusConverter;
+import com.metrics_board.persistence.enums.roll.BoardStatus;
+import com.metrics_board.persistence.enums.roll.BoardStatusConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -31,8 +31,8 @@ public class Board {
     private String description;
 
     @Column(name = "status", nullable = false)
-    @Convert(converter = ProjectStatusConverter.class)
-    private ProjectStatus status;
+    @Convert(converter = BoardStatusConverter.class)
+    private BoardStatus status;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;

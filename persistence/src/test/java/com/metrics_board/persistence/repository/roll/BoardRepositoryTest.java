@@ -3,7 +3,7 @@ package com.metrics_board.persistence.repository.roll;
 import com.metrics_board.persistence.PostgresTestContainer;
 import com.metrics_board.persistence.TestApplication;
 import com.metrics_board.persistence.entity.roll.Board;
-import com.metrics_board.persistence.enums.roll.ProjectStatus;
+import com.metrics_board.persistence.enums.roll.BoardStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
@@ -34,7 +34,7 @@ public class BoardRepositoryTest {
                         foundBoard -> Assertions.assertThat(foundBoard.getProjectId()).isEqualTo(1000),
                         foundBoard -> Assertions.assertThat(foundBoard.getName()).isEqualTo("Board"),
                         foundBoard -> Assertions.assertThat(foundBoard.getDescription()).isEqualTo("description"),
-                        foundBoard -> Assertions.assertThat(foundBoard.getStatus()).isEqualTo(ProjectStatus.ACTIVE),
+                        foundBoard -> Assertions.assertThat(foundBoard.getStatus()).isEqualTo(BoardStatus.ACTIVE),
                         foundBoard -> Assertions.assertThat(foundBoard.getCreatedAt()).isNotNull());
     }
 
@@ -44,7 +44,7 @@ public class BoardRepositoryTest {
         board.setProjectId(1000L);
         board.setName("Test");
         board.setDescription("description");
-        board.setStatus(ProjectStatus.ACTIVE);
+        board.setStatus(BoardStatus.ACTIVE);
         boardRepository.save(board);
 
         em.flush();
@@ -57,7 +57,7 @@ public class BoardRepositoryTest {
                         foundBoard -> Assertions.assertThat(foundBoard.getProjectId()).isEqualTo(1000),
                         foundBoard -> Assertions.assertThat(foundBoard.getName()).isEqualTo("Test"),
                         foundBoard -> Assertions.assertThat(foundBoard.getDescription()).isEqualTo("description"),
-                        foundBoard -> Assertions.assertThat(foundBoard.getStatus()).isEqualTo(ProjectStatus.ACTIVE),
+                        foundBoard -> Assertions.assertThat(foundBoard.getStatus()).isEqualTo(BoardStatus.ACTIVE),
                         foundBoard -> Assertions.assertThat(foundBoard.getCreatedAt()).isNotNull());
     }
 }

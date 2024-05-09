@@ -5,6 +5,7 @@ import com.metrics_board.persistence.TestApplication;
 import com.metrics_board.persistence.entity.roll.Board;
 import com.metrics_board.persistence.entity.roll.Project;
 import com.metrics_board.persistence.entity.roll.ProjectBoards;
+import com.metrics_board.persistence.enums.roll.BoardStatus;
 import com.metrics_board.persistence.enums.roll.ProjectStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -57,7 +58,7 @@ public class ProjectBoardsRepositoryTest {
         Board board = new Board();
         board.setProjectId(project.getId());
         board.setName("Board");
-        board.setStatus(ProjectStatus.ACTIVE);
+        board.setStatus(BoardStatus.ACTIVE);
         boardRepository.save(board);
 
         ProjectBoards projectBoards = new ProjectBoards();

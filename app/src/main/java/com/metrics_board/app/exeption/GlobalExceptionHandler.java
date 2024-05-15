@@ -65,6 +65,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("Resource not exist"));
     }
 
+    @ExceptionHandler(NoRightsException.class)
+    public ResponseEntity<ApiResponse<Void>> noRightsException(NoRightsException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error("No rights"));
+    }
+
     private ResponseEntity<ApiResponse<Void>> badRequest(String message) {
         return ResponseEntity.badRequest().body(ApiResponse.error(message));
     }

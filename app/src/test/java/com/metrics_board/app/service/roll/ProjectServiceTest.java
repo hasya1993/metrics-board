@@ -44,7 +44,7 @@ public class ProjectServiceTest {
                 .ownerId(OWNER_ID)
                 .name(request.getName())
                 .description(null)
-                .status(ProjectStatus.ACTIVE)
+                .status(STATUS)
                 .build();
 
         when(projectRepository.save(any(Project.class))).thenReturn(project);
@@ -60,7 +60,7 @@ public class ProjectServiceTest {
                 .id(ID)
                 .ownerId(OWNER_ID)
                 .name(NAME)
-                .status(ProjectStatus.ACTIVE)
+                .status(STATUS)
                 .build();
 
         when(projectRepository.findById(ID)).thenReturn(Optional.of(project));
